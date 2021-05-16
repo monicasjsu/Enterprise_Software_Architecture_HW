@@ -1,0 +1,13 @@
+[Unit]
+Description=Flask instance to serve Ansible HW1
+After=network.target
+
+[Service]
+User=centos
+Group=root
+WorkingDirectory=/home/centos/Ansible/flask
+Environment="PATH=/home/centos/Ansible/flask/venv/bin"
+ExecStart=/home/centos/Ansible/flask/venv/bin/python /home/centos/Ansible/flask/app.py
+
+[Install]
+WantedBy=multi-user.target

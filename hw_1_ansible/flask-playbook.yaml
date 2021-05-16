@@ -1,0 +1,49 @@
+- name: Install flask webserver
+  hosts: all
+  become: yes
+  become_user: root
+
+  tasks:
+  - name: Install epel-release
+    yum:
+      name: "{{ packages }}"
+      state: present
+    vars:
+      packages:
+        - epel-release
+
+  - name: Install pip
+    yum:
+      name: "{{ packages }}"
+    vars:
+      packages:
+        - python-pip
+        - git
+
+  - name: Install virtualenv
+    pip:
+      name: virtualenv
+
+  - name: Clone app from Git
+    git:
+      repo: 'https://github.com/monicasjsu/Ansible.git'
+      dest: /home/centos/Ansible/
+      force: yes
+
+  - name: Install python requirements
+    pip:
+      requirements: /home/centos/Ansible/flask/requirements.txt
+      virtualenv: /home/centos/Ansible/flask/venv
+      virtualenv_python: python
+
+  - name: Copy service daemon(flaskapp.service) to /etc/service.d/service/
+    copy:
+      src: "{{ item }}"
+      dest: /etc/systemd/system/
+    with_fileglob:
+      - /home/centos/Ansible/flaskapp.service
+
+  - name: Start flask service
+    systemd:
+      state: started
+      name: flaskapp
